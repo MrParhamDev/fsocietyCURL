@@ -10,6 +10,7 @@ blue="\033[34m"
 pink="\033[35m"
 cyan="\033[36m"
 white="\033[37m"
+reset="\033[0m"
 
 
 banner(){
@@ -26,7 +27,7 @@ d88P\"                             Y8P          888             d88P  Y88b 888  
                                                       Y8b d88P                                            
                                                        \"Y88P\"     
 
-    ${red} A Simple Script To Use ${green}CURL                                        
+    ${red} A Simple Script To Use ${yellow}CURL                                        
     "    
 }
 
@@ -36,13 +37,24 @@ checkInstallCurl(){
     if [ $? != 0 ]; then
         echo "${red} Curl is not installed on your system
         Please install curl first and run the script again"
+        exit
     fi
+}
+
+selectOption(){
+    echo -e "${pink}[1]${reset}\tSend ${red}GET${reset}    Request"
+    echo -e "${pink}[2]${reset}\tSend ${red}POST${reset}   Request"
+    echo -e "${pink}[3]${reset}\tSend ${red}Header${reset} Request"
+    echo -e "${pink}[4]${reset}\tGET  ${red}Header${reset} Response"
+    echo -e "${green}Select Option: ${reset}"
+    read -r selectOption
 }
 
 
 main(){
     banner              
     checkInstallCurl
+    selectOption
 }
 
 
