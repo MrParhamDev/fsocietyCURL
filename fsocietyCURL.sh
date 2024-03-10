@@ -24,13 +24,25 @@ d88P\"                             Y8P          888             d88P  Y88b 888  
 888     88888P'  \"Y88P\"   \"Y8888P 888  \"Y8888   \"Y888  \"Y88888  \"Y8888P\"   \"Y88888P\"  888   T88b 88888888 
                                                            888                                            
                                                       Y8b d88P                                            
-                                                       \"Y88P\"                                             
+                                                       \"Y88P\"     
+
+    ${red} A Simple Script To Use ${green}CURL                                        
     "    
+}
+
+
+checkInstallCurl(){
+    which curl &> /dev/null
+    if [ $? != 0 ]; then
+        echo "${red} Curl is not installed on your system
+        Please install curl first and run the script again"
+    fi
 }
 
 
 main(){
     banner              
+    checkInstallCurl
 }
 
 
