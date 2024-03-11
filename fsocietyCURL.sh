@@ -51,7 +51,16 @@ sendGet(){
     read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetURL
     read -p "$(setColor $white)Do You Want to Send Query String?[N/y]: $(setColor $reset)" sendGetQueryStringQuestion
     if [[ $sendGetQueryStringQuestion == "Y" ]] || [[ $sendGetQueryStringQuestion == "y" ]]; then
-        echo "Query String will Send !"
+        sendGetURL+="?"
+        printf "${red}If your query strings are more than one,\nseparate them with a space, for example: username=user1 password=1234\n${reset}"
+        printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
+        read -a queryStrings
+        for i in ${queryStrings[@]}
+        do  
+            sendGetURL+="$i&"
+        done
+        sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
+        curl $sendGetURL
     elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
         curl $sendGetURL
         selectOption
