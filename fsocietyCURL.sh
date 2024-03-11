@@ -41,13 +41,47 @@ checkInstallCurl(){
     fi
 }
 
+sendGet(){
+    echo "Send GET!"
+}
+
+sendPost(){
+    echo "Send POST !"
+}
+
+sendHead(){
+    echo "Send Head"
+}
+
+getHead(){
+    echo "Get Head"
+}
+
+
+
 selectOption(){
     echo -e "${pink}[1]${reset}\tSend ${red}GET${reset}    Request"
     echo -e "${pink}[2]${reset}\tSend ${red}POST${reset}   Request"
     echo -e "${pink}[3]${reset}\tSend ${red}Header${reset} Request"
     echo -e "${pink}[4]${reset}\tGET  ${red}Header${reset} Response"
-    echo -e "${green}Select Option: ${reset}"
-    read -r selectOption
+    echo -e "${pink}[5]${reset}\t${red}EXIT${reset}"
+    read -p  "$(echo -e $green)Select Option: $(echo -e $reset)" selectOption
+    case $selectOption in
+        1)
+        sendGet
+        ;;
+        2)
+        sendPost
+        ;;
+        3)
+        sendHead
+        ;;
+        4)
+        getHead
+        ;;
+        5)
+        exit
+    esac
 }
 
 
