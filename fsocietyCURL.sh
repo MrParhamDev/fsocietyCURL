@@ -2,7 +2,7 @@
 
 
 
-# define Colors
+# Define the colors used during the project
 red="\033[31m"
 green="\033[32m"
 yellow="\033[33m"
@@ -12,7 +12,7 @@ cyan="\033[36m"
 white="\033[37m"
 reset="\033[0m"
 
-
+# Function For show banner
 banner(){
     echo -e "
  .d888                            d8b          888              .d8888b.  888     888 8888888b.  888      
@@ -31,7 +31,7 @@ d88P\"                             Y8P          888             d88P  Y88b 888  
     "    
 }
 
-
+# This function is responsible for checking whether curl is installed or not
 checkInstallCurl(){
     which curl &> /dev/null
     if [ $? != 0 ]; then
@@ -41,12 +41,12 @@ checkInstallCurl(){
     fi
 }
 
-
+# Simple Function to Set Color
 setColor(){
     echo -e $1
 }
 
-
+# Function To Send GET Request
 sendGet(){
     read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetURL
     read -p "$(setColor $white)Do You Want to Send Query String?[N/y]: $(setColor $reset)" sendGetQueryStringQuestion
@@ -59,6 +59,7 @@ sendGet(){
         do  
             sendGetURL+="$i&"
         done
+        # Delete & end of string (annoying)
         sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
         curl $sendGetURL
     elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
