@@ -60,16 +60,37 @@ sendGet(){
         done
         # Delete & end of string (annoying)
         sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
-        curl $sendGetURL
+        curl -X GET $sendGetURL
+        selectOption
     elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
-        curl $sendGetURL
+        curl -X GET $sendGetURL
         selectOption
     fi
 
 }
 
+# Function To Send POST Request
 sendPost(){
-    echo "hello world"
+    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendPostRequest
+    read -p "$(setColor $white)Do You Want to Send Data with Request?[N/y]: $(setColor $reset)" sendPostDataQuestion
+    if [[ $sendPostDataQuestion == "y" ]] || [[ $sendPostDataQuestion == "Y" ]]; then
+        printf "${red}If Your POST Data Are More Than One,\nSeparate Them With a Space, For Example: username=user1 password=1234\n${reset}"
+        printf "$(setColor $yellow)Enter POST Data: $(setColor $reset)"
+        read -a postData
+        data=""
+        for i in ${postData[@]}
+        do
+            data+="$i&"
+        done
+        
+        # Delete & end of string (annoying)
+        data=$(echo $data | sed 's/\&$//')
+        curl -X POST $sendPostRequest -d "$data"
+        selectOption
+    elif [[ $sendPostDataQuestion == "n" ]] || [[ $sendPostDataQuestion == "N" ]] || [[ $sendPostDataQuestion == "" ]]; then
+        curl -X POST $sendPostRequest
+        selectOption  
+    fi
 }
 
 sendHead(){
