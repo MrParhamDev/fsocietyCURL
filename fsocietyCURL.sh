@@ -1,7 +1,6 @@
 #! /bin/bash
 
 
-
 # Define the colors used during the project
 red="\033[31m"
 green="\033[32m"
@@ -70,7 +69,7 @@ sendGet(){
 }
 
 sendPost(){
-    echo "Send POST !"
+    echo "hello world"
 }
 
 sendHead(){
