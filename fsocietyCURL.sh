@@ -41,8 +41,14 @@ checkInstallCurl(){
     fi
 }
 
+
+setColor(){
+    echo -e $1
+}
+
+
 sendGet(){
-    echo "Send GET!"
+    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetURL
 }
 
 sendPost(){
@@ -65,7 +71,7 @@ selectOption(){
     echo -e "${pink}[3]${reset}\tSend ${red}Header${reset} Request"
     echo -e "${pink}[4]${reset}\tGET  ${red}Header${reset} Response"
     echo -e "${pink}[5]${reset}\t${red}EXIT${reset}"
-    read -p  "$(echo -e $green)Select Option: $(echo -e $reset)" selectOption
+    read -p  "$(setColor $green)Select Option: $(setColor $reset)" selectOption
     case $selectOption in
         1)
         sendGet
