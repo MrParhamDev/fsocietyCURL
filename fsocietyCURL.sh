@@ -2,7 +2,7 @@
 
 
 
-# Colors
+# define Colors
 red="\033[31m"
 green="\033[32m"
 yellow="\033[33m"
@@ -49,6 +49,14 @@ setColor(){
 
 sendGet(){
     read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetURL
+    read -p "$(setColor $white)Do You Want to Send Query String?[N/y]: $(setColor $reset)" sendGetQueryStringQuestion
+    if [[ $sendGetQueryStringQuestion == "Y" ]] || [[ $sendGetQueryStringQuestion == "y" ]]; then
+        echo "Query String will Send !"
+    elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
+        curl $sendGetURL
+        selectOption
+    fi
+
 }
 
 sendPost(){
@@ -66,11 +74,16 @@ getHead(){
 
 
 selectOption(){
+    echo
     echo -e "${pink}[1]${reset}\tSend ${red}GET${reset}    Request"
+    sleep 0.2
     echo -e "${pink}[2]${reset}\tSend ${red}POST${reset}   Request"
+    sleep 0.2
     echo -e "${pink}[3]${reset}\tSend ${red}Header${reset} Request"
+    sleep 0.2
     echo -e "${pink}[4]${reset}\tGET  ${red}Header${reset} Response"
-    echo -e "${pink}[5]${reset}\t${red}EXIT${reset}"
+    sleep 0.2
+    echo -e "${pink}[5]${reset}\t${red}###### EXIT ########${reset}"
     read -p  "$(setColor $green)Select Option: $(setColor $reset)" selectOption
     case $selectOption in
         1)
