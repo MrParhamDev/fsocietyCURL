@@ -60,10 +60,10 @@ sendGet(){
         done
         # Delete & end of string (annoying)
         sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
-        curl -X GET $sendGetURL
+        curl -X GET $sendGetUrl
         selectOption
     elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
-        curl -X GET $sendGetURL
+        curl -X GET $sendGetUrl
     fi
 }
 
