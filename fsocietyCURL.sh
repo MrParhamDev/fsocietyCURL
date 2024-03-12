@@ -47,16 +47,16 @@ setColor(){
 
 # Function To Send GET Request
 sendGet(){
-    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetURL
+    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetUrl
     read -p "$(setColor $white)Do You Want to Send Query String?[N/y]: $(setColor $reset)" sendGetQueryStringQuestion
     if [[ $sendGetQueryStringQuestion == "Y" ]] || [[ $sendGetQueryStringQuestion == "y" ]]; then
-        sendGetURL+="?"
+        sendGetUrl+="?"
         printf "${red}If your query strings are more than one,\nseparate them with a space, for example: username=user1 password=1234\n${reset}"
         printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
         read -a queryStrings
         for i in ${queryStrings[@]}
         do  
-            sendGetURL+="$i&"
+            sendGetUrl+="$i&"
         done
         # Delete & end of string (annoying)
         sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
@@ -64,9 +64,7 @@ sendGet(){
         selectOption
     elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
         curl -X GET $sendGetURL
-        selectOption
     fi
-
 }
 
 # Function To Send POST Request
@@ -94,18 +92,28 @@ sendPost(){
 }
 
 sendHead(){
-    echo "Send Head"
+	echo "soon"
 }
 
 getHead(){
-    echo "Get Head"
+    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendHeadUrl
+	read -p "$(setColor $yellow)do you want to follow moved(301) address (default:n): [y,n]: $(setColor $reset)" followLocation
+	case ${followLocation} in 
+		y|Y)
+			curl -L --head ${sendHeadUrl};;
+		n|N)
+			curl --head ${sendHeadUrl};;
+		*)
+			curl --head ${sendHeadUrl};;
+	esac
+	selectOption
 }
 
 
 
 selectOption(){
-    echo
-    echo -e "${pink}[1]${reset}\tSend ${red}GET${reset}    Request"
+	echo	
+	echo -e "${pink}[1]${reset}\tSend ${red}GET${reset}    Request"
     sleep 0.2
     echo -e "${pink}[2]${reset}\tSend ${red}POST${reset}   Request"
     sleep 0.2
@@ -135,7 +143,7 @@ selectOption(){
 
 
 main(){
-    banner              
+	banner
     checkInstallCurl
     selectOption
 }
