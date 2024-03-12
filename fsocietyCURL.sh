@@ -49,21 +49,49 @@ setColor(){
 sendGet(){
     read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetUrl
     read -p "$(setColor $white)Do You Want to Send Query String?[N/y]: $(setColor $reset)" sendGetQueryStringQuestion
+    read -p "$(setColor $white)Do You Want to Follow Redirects?[N/y]: $(setColor $reset)" followRedirecsQuestion
     if [[ $sendGetQueryStringQuestion == "Y" ]] || [[ $sendGetQueryStringQuestion == "y" ]]; then
-        sendGetUrl+="?"
-        printf "${red}If your query strings are more than one,\nseparate them with a space, for example: username=user1 password=1234\n${reset}"
-        printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
-        read -a queryStrings
-        for i in ${queryStrings[@]}
-        do  
-            sendGetUrl+="$i&"
-        done
-        # Delete & end of string (annoying)
-        sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
-        curl -X GET $sendGetUrl
-        selectOption
+        case $followRedirecsQuestion in
+            "n"|"N"|"")
+                sendGetUrl+="?"
+                printf "${red}If your query strings are more than one,\nseparate them with a space, for example: username=user1 password=1234\n${reset}"
+                printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
+                read -a queryStrings
+                for i in ${queryStrings[@]}
+                do  
+                    sendGetUrl+="$i&"
+                done
+                # Delete & end of string (annoying)
+                sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
+                curl -X GET $sendGetUrl
+                selectOption
+            ;;
+            "Y"|"y")
+                sendGetUrl+="?"
+                printf "${red}If your query strings are more than one,\nseparate them with a space, for example: username=user1 password=1234\n${reset}"
+                printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
+                read -a queryStrings
+                for i in ${queryStrings[@]}
+                do  
+                    sendGetUrl+="$i&"
+                done
+                # Delete & end of string (annoying)
+                sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
+                curl -L -X GET $sendGetUrl
+                selectOption 
+        esac
     elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
-        curl -X GET $sendGetUrl
+        case $followRedirecsQuestion in
+            "n"|"N"|"")
+                curl -X GET $sendGetUrl
+                selectOption
+            ;;
+
+            "Y"|"y")
+                curl -L -X GET $sendGetUrl
+                selectOption 
+        esac
+        
     fi
 }
 
