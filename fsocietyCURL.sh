@@ -132,11 +132,11 @@ sendHead(){
             data+="\"$i\" "
         done
         
-		curl -IL -H $data $sendHead  
+		curl -IL -H -v $data $sendHead  
 		selectOption
 
     elif [[ $sendPostDataQuestion == "n" ]] || [[ $sendPostDataQuestion == "N" ]] || [[ $sendPostDataQuestion == "" ]]; then
-        curl -IL $sendPostRequest
+        curl -IL $sendHead
         selectOption  
     fi
 }
