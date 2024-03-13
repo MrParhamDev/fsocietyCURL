@@ -120,7 +120,25 @@ sendPost(){
 }
 
 sendHead(){
-	echo "soon"
+    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendHead
+    read -p "$(setColor $white)Do you want to add some header?[N/y]: $(setColor $reset)" getHeadYesNo
+	if [[ $getHeadYesNo == "y" ]] || [[ $getHeadYesNo == "Y" ]]; then
+        printf "${red}If Your POST Data Are More Than One,\nSeparate Them With a Space, For Example: Host:google.com User-Agent:Mozilla/5.0 \n${reset}"
+        printf "$(setColor $yellow)Enter POST Data: $(setColor $reset)"
+        read -a headData
+        data=""
+        for i in ${headData[@]}
+        do
+            data+="\"$i\" "
+        done
+        
+		curl -IL -H $data $sendHead  
+		selectOption
+
+    elif [[ $sendPostDataQuestion == "n" ]] || [[ $sendPostDataQuestion == "N" ]] || [[ $sendPostDataQuestion == "" ]]; then
+        curl -IL $sendPostRequest
+        selectOption  
+    fi
 }
 
 getHead(){
