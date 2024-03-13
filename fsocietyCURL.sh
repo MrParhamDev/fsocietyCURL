@@ -121,24 +121,28 @@ sendPost(){
 
 sendHead(){
     read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendHead
-    read -p "$(setColor $white)Do you want to add some header?[N/y]: $(setColor $reset)" getHeadYesNo
-	if [[ $getHeadYesNo == "y" ]] || [[ $getHeadYesNo == "Y" ]]; then
-        printf "${red}If Your POST Data Are More Than One,\nSeparate Them With a Space, For Example: Host:google.com User-Agent:Mozilla/5.0 \n${reset}"
-        printf "$(setColor $yellow)Enter POST Data: $(setColor $reset)"
-        read -a headData
-        data=""
-        for i in ${headData[@]}
-        do
-            data+="\"$i\" "
-        done
-        
-		curl -IL -H $data $sendHead  
-		selectOption
-
-    elif [[ $sendPostDataQuestion == "n" ]] || [[ $sendPostDataQuestion == "N" ]] || [[ $sendPostDataQuestion == "" ]]; then
-        curl -IL $sendPostRequest
-        selectOption  
-    fi
+    read -p "$(setColor $white)Do you want to add some header?[n/y]: $(setColor $reset)" getHeadYesNo
+    case $getHeadYesNo in
+		y|Y)
+			printf "${red}if you want add some request header separate with space\n\texample: Host:google.com Accept:text/html\n-> : ${reset}" 
+			read -a headerList
+			allHeaders=""
+			for i in ${headerList[@]}
+			do
+				allHeaders+="-H \"$i\""
+			done
+			echo "curl -IL $allHeaders $sendHead"	
+			curl -IL $allHeaders $sendHead  
+			selectOption
+			;;
+		n|N)    
+			curl -IL $sendHead
+			selectOption  
+			;;
+		*)
+			curl -IL $sendHead
+			selectOption
+	esac 
 }
 
 getHead(){
