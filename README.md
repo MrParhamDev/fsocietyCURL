@@ -17,16 +17,16 @@ CURL
 
 # Cloning the Project
 ```bash
-git clonehttps://github.com/MrParhamDev/fsocietyCURL.git
+git clone https://github.com/MrParhamDev/fsocietyCURL.git
 ```
 
 # Usage
  ```bash
-bash fsocietyCURl.sh
+bash fsocietyCURL.sh
  ```
 
 # Help
 ```bash
- fsocietyCURL.sh --help
+fsocietyCURL.sh --help
  ```
 
