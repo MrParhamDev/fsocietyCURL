@@ -10,6 +10,7 @@ pink="\033[35m"
 cyan="\033[36m"
 white="\033[37m"
 reset="\033[0m"
+bold="\033[1m"
 
 # Function For show banner
 banner(){
@@ -232,7 +233,7 @@ sendPost(){
 }
 
 sendHead(){
-    read -p "$(setColor $yellow)Enter Host Or Domain Name: $(setColor $reset)$(printf '\n')" sendHeadUrl
+    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)$(printf '\n')" sendHeadUrl
     read -p "$(setColor $pink)[?]$(setColor $reset)$(printf '\t')do you want to Send Any Data $(setColor $pink)[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]? $(setColor $reset)" sendHeadDataQuestion
     if [[ $sendHeadDataQuestion == "Y" ]] || [[ $sendHeadDataQuestion == "y" ]]; then
         printf "${red}if you want add some request header separate with space\n\texample: Host:google.com Accept:text/html\n-> : ${reset}" 
@@ -298,6 +299,19 @@ selectOption(){
     esac
 }
 
+# Help Function
+help(){
+    printf "${green}Usage: ${reset}${bold}fsocietyCURL.sh ${reset}${pink}[OPTIONS]${reset}...\n"
+    printf "${yellow}Easier to use than CURL${reset}\n"
+    printf "${bold}OPTIONS${reset}\n\t${pink}-sendGET\t${reset} : Send ${bold}GET${reset}  Requeset\n"
+    printf "\t${pink}-sendPOST\t${reset} : Send ${bold}POST${reset} Request\n"
+    printf "\t${pink}-sendHEAD\t${reset} : Send ${bold}HEAD${reset} Request\n"
+    printf "\t${pink}-getHEAD\t${reset} : Get  ${bold}HEAD${reset} Response\n"
+    printf "\t${pink}--help , -h\t${reset} : Show ${bold}HELP${reset}\n\n"
+    printf "${red}[tip]${reset}\t${yellow}* You can run the script without any arguments, in which case all the options will be displayed for you${reset}\n\n"
+    printf "${bold}AUTHORS${reset}\n\t${yellow}[ MrPacker , SimpleHumanI ] ${reset}\n\n"
+    printf "${bold}Project Link${reset}\n\t${yellow}https://github.com/MrParhamDev/fsocietyCURL${reset}"
+}
 
 main(){
 	banner
@@ -306,4 +320,41 @@ main(){
 }
 
 
-main
+if [[ $# -gt 1 ]]; then
+    echo -e "${red}The number of arguments cannot be more than one${reset}"
+    exit
+elif [[ $# -eq 0 ]]; then
+    main
+else
+    case $1 in
+        "-h"|"--help")
+            help
+        ;;
+       "-sendget"|"-send-get"|"-sendGet"|"-sendGET"|"-SENDGET")
+            checkInstallCurl
+            sendGet
+        ;;
+        "-sendpost"|"-send-post"|"-sendPost"|"-sendPOST"|"-SENDPOST")
+            checkInstallCurl
+            sendPost
+        ;;
+        "-sendhead"|"-send-head"|"-sendHead"|"-sendHEAD"|"-SENDHEAD")
+            checkInstallCurl
+            sendHead
+        ;;
+        "-gethead"|"-get-head"|"-getHead"|"-getHEAD"|"-GETHEAD")
+            checkInstallCurl
+            getHead
+        ;;
+        "-select"|"-Select"|"-SELECT"|"options"|"-select-options"|-"list"|"-list-options")
+            checkInstallCurl
+            selectOption
+        ;;
+            *)
+                printf "${red}Wrong Argument${reset}"
+    esac
+fi
+
+
+
+
