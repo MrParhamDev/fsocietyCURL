@@ -45,53 +45,92 @@ setColor(){
     echo -e $1
 }
 
+# Function To Input Headers From User
+inputHeaders(){
+    echo -e "${yellow}Getting Headers ...${reset}"
+        printf "${red}if you want add some request header separate with space\n\texample: Host:google.com Accept:text/html\n-> : ${reset}" 
+		read -a headerList
+        headerData=""
+        for i in ${headerList[@]}
+        do
+            headerData+="-H $i \n"
+        done
+}
+
+# Function To Input Query Strings From User
+inputQueryStrings(){
+        sendGetUrl+="?"
+        echo -e "${yellow}Getting Query Strings ...${reset}"
+        printf "${red}if you want add some Query Strings separate with space\n\texample: username=user1 password=1234\n->${reset}"
+        printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
+        read -a queryStrings
+        for i in ${queryStrings[@]}
+        do  
+            sendGetUrl+="$i&"
+        done
+        # Delete & end of string (annoying)
+        quryStringUrl=$(echo $sendGetUrl | sed 's/\&$//')
+}
+
+newLine=$(printf '\n')
+
 # Function To Send GET Request
 sendGet(){
     read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendGetUrl
-    read -p "$(setColor $white)Do You Want to Send Query String?[N/y]: $(setColor $reset)" sendGetQueryStringQuestion
-    read -p "$(setColor $white)Do You Want to Follow Redirects?[N/y]: $(setColor $reset)" followRedirecsQuestion
-    if [[ $sendGetQueryStringQuestion == "Y" ]] || [[ $sendGetQueryStringQuestion == "y" ]]; then
-        case $followRedirecsQuestion in
-            "n"|"N"|"")
-                sendGetUrl+="?"
-                printf "${red}If your query strings are more than one,\nseparate them with a space, for example: username=user1 password=1234\n${reset}"
-                printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
-                read -a queryStrings
-                for i in ${queryStrings[@]}
-                do  
-                    sendGetUrl+="$i&"
-                done
-                # Delete & end of string (annoying)
-                sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
-                curl -X GET $sendGetUrl
-                selectOption
-            ;;
-            "Y"|"y")
-                sendGetUrl+="?"
-                printf "${red}If your query strings are more than one,\nseparate them with a space, for example: username=user1 password=1234\n${reset}"
-                printf "$(setColor $yellow)Enter Query Strings: $(setColor $reset)"
-                read -a queryStrings
-                for i in ${queryStrings[@]}
-                do  
-                    sendGetUrl+="$i&"
-                done
-                # Delete & end of string (annoying)
-                sendGetURL=$(echo $sendGetURL | sed 's/\&$//')
-                curl -L -X GET $sendGetUrl
-                selectOption 
-        esac
-    elif [[ $sendGetQueryStringQuestion == "n" ]] || [[ $sendGetQueryStringQuestion == "N" ]] || [[ $sendGetQueryStringQuestion == "" ]]; then
-        case $followRedirecsQuestion in
-            "n"|"N"|"")
-                curl -X GET $sendGetUrl
-                selectOption
-            ;;
-
-            "Y"|"y")
-                curl -L -X GET $sendGetUrl
-                selectOption 
-        esac
-        
+    sleep 0.3
+    read -p "$(setColor $pink)[?]$(printf '\t')Do You want to Send any Header $(printf '\t\t')[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]$(setColor $reset)? " sendGetHeaderQuestion
+    sleep 0.3
+    read -p "$(setColor $pink)[?]$(printf '\t')Do You Want to Send Query String $(printf '\t')[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]$(setColor $reset)? " sendGetQueryStringQuestion
+    sleep 0.3
+    read -p "$(setColor $pink)[?]$(printf '\t')Do You want to Follow Redirect $(printf '\t\t')[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]$(setColor $reset)? " sendGetFollowRedirectQuestion
+    # Condition For Header True , Query String True , Follow Redirect True (T,T,T)
+    if [[ $sendGetHeaderQuestion == "Y" || $sendGetHeaderQuestion == "y" ]] && [[ $sendGetQueryStringQuestion == "Y" || $sendGetQueryStringQuestion == "y" ]] && [[ $sendGetFollowRedirectQuestion == "Y" || $sendGetFollowRedirectQuestion == "y" ]]; then
+        # Getting Query Strings From User
+        inputQueryStrings
+        # Getting Headers From User
+        inputHeaders
+        curl -X GET -L $quryStringUrl $(echo -e $headerData)
+        selectOption
+    # Condition For Header False , Query String False , Follow Redirect False (F,F,F)
+    elif [[ $sendGetHeaderQuestion == "N" || $sendGetHeaderQuestion == "n" || $sendGetHeaderQuestion == $newLine ]] && [[ $sendGetQueryStringQuestion == "N" || $sendGetQueryStringQuestion == "n" || $sendGetQueryStringQuestion == $newLine ]] && [[ $sendGetFollowRedirectQuestion == "N" || $sendGetFollowRedirectQuestion == "n" || $sendGetFollowRedirectQuestion == $newLine ]]; then
+        curl -X GET $sendGetUrl
+        selectOption
+    # Condition For Header True , Query String False , Follow Redirect False (T,F,F)
+    elif [[ $sendGetHeaderQuestion == "Y" || $sendGetHeaderQuestion == "y" ]] && [[ $sendGetQueryStringQuestion == "n" || $sendGetQueryStringQuestion == "N" || $sendGetQueryStringQuestion == $newLine ]] && [[ $sendGetFollowRedirectQuestion == "n" || $sendGetFollowRedirectQuestion == "N" || $sendGetFollowRedirectQuestion == $newLine ]]; then
+        # Getting Headers From User
+        inputHeaders
+        curl -X GET $sendGetUrl $(echo -e $headerData)
+        selectOption
+    # Condition For Header True , Query String True , Follow Redirect False (T,T,F)
+    elif [[ $sendGetHeaderQuestion == "Y" || $sendGetHeaderQuestion == "y" ]] && [[ $sendGetQueryStringQuestion == "Y" || $sendGetQueryStringQuestion == "y" ]] && [[ $sendGetFollowRedirectQuestion == "n" || $sendGetFollowRedirectQuestion == "N" || $sendGetFollowRedirectQuestion == $newLine ]]; then
+        # Getting Query Strings From User
+        inputQueryStrings
+        # Getting Headers From User
+        inputHeaders
+        curl -X GET $quryStringUrl $(echo -e $headerData)
+        selectOption
+    # Condition For Header True , Query String False , Follow Redirect True (T,F,T)
+    elif [[ $sendGetHeaderQuestion == "Y" || $sendGetHeaderQuestion == "y" ]] && [[ $sendGetQueryStringQuestion == "n" || $sendGetQueryStringQuestion == "N" || $sendGetQueryStringQuestion == $newLine ]] && [[ $sendGetFollowRedirectQuestion == "Y" || $sendGetFollowRedirectQuestion == "y" ]]; then
+        # Getting Headers From User
+        inputHeaders
+        curl -X GET -L $sendGetUrl $(echo -e $headerData)
+        selectOption
+    # Condition For Header False , Query String True , Follow Redirect True (F,T,T)
+    elif [[ $sendGetHeaderQuestion == "N" || $sendGetHeaderQuestion == "n" || $sendGetHeaderQuestion == $newLine ]] && [[ $sendGetQueryStringQuestion == "Y" || $sendGetQueryStringQuestion == "y" ]] && [[ $sendGetFollowRedirectQuestion == "Y" || $sendGetFollowRedirectQuestion == "y" ]]; then
+        # Getting Query Strings From User
+        inputQueryStrings
+        curl -X GET -L $quryStringUrl
+        selectOption
+    # Condition For Header False , Query String False , Follow Redirect True (F,F,T)
+    elif [[ $sendGetHeaderQuestion == "N" || $sendGetHeaderQuestion == "n" || $sendGetHeaderQuestion == $newLine ]] && [[ $sendGetQueryStringQuestion == "N" || $sendGetQueryStringQuestion == "n" || $sendGetQueryStringQuestion == $newLine ]] && [[ $sendGetFollowRedirectQuestion == "Y" || $sendGetFollowRedirectQuestion == "y" ]]; then
+        curl -X GET -L $sendGetUrl
+        selectOption
+    # Condition For Header False , Query String True , Follow Redirect False (F,T,F)
+    elif [[ $sendGetHeaderQuestion == "N" || $sendGetHeaderQuestion == "n" || $sendGetHeaderQuestion == $newLine ]] && [[ $sendGetQueryStringQuestion == "Y" || $sendGetQueryStringQuestion == "y" ]] && [[ $sendGetFollowRedirectQuestion == "Y" || $sendGetFollowRedirectQuestion == "y" || $sendGetFollowRedirectQuestion == $newLine ]]; then
+        # Getting Query Strings From User 
+        inputQueryStrings
+        curl -X GET $quryStringUrl
+        selectOption
     fi
 }
 
@@ -120,24 +159,23 @@ sendPost(){
 }
 
 sendHead(){
-    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendHead
-    read -p "$(setColor $white)Do you want to add some header?[N/y]: $(setColor $reset)" getHeadYesNo
-	if [[ $getHeadYesNo == "y" ]] || [[ $getHeadYesNo == "Y" ]]; then
-        printf "${red}If Your POST Data Are More Than One,\nSeparate Them With a Space, For Example: Host:google.com User-Agent:Mozilla/5.0 \n${reset}"
-        printf "$(setColor $yellow)Enter POST Data: $(setColor $reset)"
-        read -a headData
-        data=""
-        for i in ${headData[@]}
+    read -p "$(setColor $yellow)Enter Host Or Domain Name: $(setColor $reset)$(printf '\n')" sendHeadUrl
+    read -p "$(setColor $pink)[?]$(setColor $reset)$(printf '\t')do you want to Send Any Data $(setColor $pink)[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]? $(setColor $reset)" sendHeadDataQuestion
+    if [[ $sendHeadDataQuestion == "Y" ]] || [[ $sendHeadDataQuestion == "y" ]]; then
+        printf "${red}if you want add some request header separate with space\n\texample: Host:google.com Accept:text/html\n-> : ${reset}" 
+		read -a headerList
+        headerData=""
+        for i in ${headerList[@]}
         do
-            data+="\"$i\" "
+            headerData+="-H $i \n"
         done
-        
-		curl -IL -H -v $data $sendHead  
-		selectOption
-
-    elif [[ $sendPostDataQuestion == "n" ]] || [[ $sendPostDataQuestion == "N" ]] || [[ $sendPostDataQuestion == "" ]]; then
-        curl -IL $sendHead
-        selectOption  
+        curl -IL $sendHeadUrl $(echo -e $headerData)
+        # selectOption
+    elif [[ $sendHeadDataQuestion == "n" ]] || [[ $sendHeadDataQuestion == "N" ]] || [[ $sendHeadDataQuestion == "" ]]; then
+        curl -IL $sendHeadUrl
+        selectOption
+    else
+        echo -p "${red}Wrong Selection ! , EXIT${reset}"
     fi
 }
 
