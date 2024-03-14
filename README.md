@@ -30,3 +30,4 @@ bash fsocietyCURL.sh
 fsocietyCURL.sh --help
  ```
 
+![Sample](readmepic.png)
