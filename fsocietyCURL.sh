@@ -72,6 +72,23 @@ inputQueryStrings(){
         quryStringUrl=$(echo $sendGetUrl | sed 's/\&$//')
 }
 
+
+# Function To Input POST Data From User
+inputPostData(){
+        echo -e "${yellow}Getting POST Data ...${reset}"
+        printf "${red}If Your POST Data Are More Than One,\nSeparate Them With a Space, For Example: username=user1 password=1234\n${reset}"
+        printf "$(setColor $yellow)Enter POST Data: $(setColor $reset)"
+        read -a postData
+        data=""
+        for i in ${postData[@]}
+        do
+            data+="$i&"
+        done
+        
+        # Delete & end of string (annoying)
+        data=$(echo $data | sed 's/\&$//')
+}
+
 newLine=$(printf '\n')
 
 # Function To Send GET Request
@@ -131,30 +148,86 @@ sendGet(){
         inputQueryStrings
         curl -X GET $quryStringUrl
         selectOption
+    else
+        echo -e "${red}Wrong Answer To Question ...${reset}"
+        read -p "$(setColor $yellow)Do You Want To Continue [Y/n]? $(setColor $reset)" wrongAnswerQuestion
+        case $wrongAnswerQuestion in
+            Y|y|yes)
+                selectOption
+            ;;
+            N|n|no)
+                exit
+        esac
     fi
 }
 
 # Function To Send POST Request
 sendPost(){
-    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendPostRequest
-    read -p "$(setColor $white)Do You Want to Send Data with Request?[N/y]: $(setColor $reset)" sendPostDataQuestion
-    if [[ $sendPostDataQuestion == "y" ]] || [[ $sendPostDataQuestion == "Y" ]]; then
-        printf "${red}If Your POST Data Are More Than One,\nSeparate Them With a Space, For Example: username=user1 password=1234\n${reset}"
-        printf "$(setColor $yellow)Enter POST Data: $(setColor $reset)"
-        read -a postData
-        data=""
-        for i in ${postData[@]}
-        do
-            data+="$i&"
-        done
-        
-        # Delete & end of string (annoying)
-        data=$(echo $data | sed 's/\&$//')
-        curl -X POST $sendPostRequest -d "$data"
+    read -p "$(setColor $yellow)Enter Hostname OR IP Address: $(setColor $reset)" sendPostUrl
+    sleep 0.3
+    read -p "$(setColor $pink)[?]$(printf '\t')Do You want to Send any Header $(printf '\t\t')[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]$(setColor $reset)? " sendPostHeaderQuestion
+    sleep 0.3
+    read -p "$(setColor $pink)[?]$(printf '\t')Do You Want to Send POST Data $(printf '\t\t')[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]$(setColor $reset)? " sendPostDataQuestion
+    sleep 0.3
+    read -p "$(setColor $pink)[?]$(printf '\t')Do You want to Follow Redirect $(printf '\t\t')[$(setColor $red)N$(setColor $reset)/$(setColor $green)y$(setColor $reset)$(setColor $pink)]$(setColor $reset)? " sendPostFollowRedirectQuestion
+    # Condition For Header True , Send Data True , Follow Redirect True (T,T,T)
+    if [[ $sendPostHeaderQuestion == "Y" || $sendPostHeaderQuestion == "y" ]] && [[ $sendPostDataQuestion == "Y" || $sendPostDataQuestion == "y" ]] && [[ $sendPostFollowRedirectQuestion == "Y" || $sendPostFollowRedirectQuestion == "y" ]]; then
+        # Getting PostData From User
+        inputPostData
+        # Getting Headers From User
+        inputHeaders
+        curl -X POST -L $sendPostUrl -d "$data" $(echo -e $headerData)
         selectOption
-    elif [[ $sendPostDataQuestion == "n" ]] || [[ $sendPostDataQuestion == "N" ]] || [[ $sendPostDataQuestion == "" ]]; then
-        curl -X POST $sendPostRequest
-        selectOption  
+    # Condition For Header False , Send Data False , Follow Redirect False (F,F,F)
+    elif [[ $sendPostHeaderQuestion == "N" || $sendPostHeaderQuestion == "n" || $sendPostHeaderQuestion == $newLine ]] && [[ $sendPostDataQuestion == "N" || $sendPostDataQuestion == "n" || $sendPostDataQuestion == $newLine ]] && [[ $sendPostFollowRedirectQuestion == "N" || $sendPostFollowRedirectQuestion == "n" || $sendPostFollowRedirectQuestion == $newLine ]]; then
+        curl -X POST $sendPostUrl
+        selectOption
+    # Condition For Header True , Send Data False , Follow Redirect False (T,F,F)
+    elif [[ $sendPostHeaderQuestion == "Y" || $sendPostHeaderQuestion == "y" ]] && [[ $sendPostDataQuestion == "n" || $sendPostDataQuestion == "N" || $$sendPostDataQuestion == $newLine ]] && [[ $sendPostFollowRedirectQuestion == "n" || $sendPostFollowRedirectQuestion == "N" || $sendPostFollowRedirectQuestion == $newLine ]]; then
+        # Getting Headers From User
+        inputHeaders
+        curl -X POST $sendPostUrl $(echo -e $headerData)
+        selectOption
+    # Condition For Header True , Send Data True , Follow Redirect False (T,T,F)
+    elif [[ $sendPostHeaderQuestion == "Y" || $sendPostHeaderQuestion == "y" ]] && [[ $sendPostDataQuestion == "Y" || $sendPostDataQuestion == "y" ]] && [[ $sendPostFollowRedirectQuestion == "n" || $sendPostFollowRedirectQuestion == "N" || $sendPostFollowRedirectQuestion == $newLine ]]; then
+        # Getting PostData From User
+        inputPostData
+        # Getting Headers From User
+        inputHeaders
+        curl -X POST $sendPostUrl -d "$data" $(echo -e $headerData)
+        selectOption
+    # Condition For Header True , Send Data False , Follow Redirect True (T,F,T)
+    elif [[ $sendPostHeaderQuestion == "Y" || $sendPostHeaderQuestion == "y" ]] && [[ $sendPostDataQuestion == "n" || $sendPostDataQuestion == "N" || $sendPostDataQuestion == $newLine ]] && [[ $sendPostFollowRedirectQuestion == "Y" || $sendPostFollowRedirectQuestion == "y" ]]; then
+        # Getting Headers From User
+        inputHeaders
+        curl -X POST -L $sendPostUrl $(echo -e $headerData)
+        selectOption
+    # Condition For Header False , Send Data True , Follow Redirect True (F,T,T)
+    elif [[ $sendPostHeaderQuestion == "N" || $sendPostHeaderQuestion == "n" || $sendPostHeaderQuestion == $newLine ]] && [[ $sendPostDataQuestion == "Y" || $sendPostDataQuestion == "y" ]] && [[ $sendPostFollowRedirectQuestion == "Y" || $sendPostFollowRedirectQuestion == "y" ]]; then
+        # Getting PostData From User
+        inputPostData 
+        curl -X POST -L $sendPostUrl -d "$data"
+        selectOption
+    # Condition For Header False , Send Data False , Follow Redirect True (F,F,T)
+    elif [[ $sendPostHeaderQuestion == "N" || $sendPostHeaderQuestion == "n" || $sendPostHeaderQuestion == $newLine ]] && [[ $sendPostDataQuestion == "N" || $sendPostDataQuestion == "n" || $sendPostDataQuestion == $newLine ]] && [[ $sendPostFollowRedirectQuestion == "Y" || $sendPostFollowRedirectQuestion == "y" ]]; then
+        curl -X POST -L $sendPostUrl
+        selectOption
+    # Condition For Header False , Send Data True , Follow Redirect False (F,T,F)
+    elif [[ $sendPostHeaderQuestion == "N" || $sendPostHeaderQuestion == "n" || $sendPostHeaderQuestion == $newLine ]] && [[ $sendPostDataQuestion == "Y" || $sendPostDataQuestion == "y" ]] && [[ $sendPostFollowRedirectQuestion == "Y" || $sendPostFollowRedirectQuestion == "y" || $sendPostFollowRedirectQuestion == $newLine ]]; then
+        # Getting PostData From User 
+        inputPostData 
+        curl -X POST $sendPostUrl -d "$data"
+        selectOption
+    else
+        echo -e "${red}Wrong Answer To Question ...${reset}"
+        read -p "$(setColor $yellow)Do You Want To Continue [Y/n]? $(setColor $reset)" wrongAnswerQuestion
+        case $wrongAnswerQuestion in
+            Y|y|yes)
+                selectOption
+            ;;
+            N|n|no)
+                exit
+        esac
     fi
 }
 
@@ -171,7 +244,7 @@ sendHead(){
         done
         curl -IL $sendHeadUrl $(echo -e $headerData)
         # selectOption
-    elif [[ $sendHeadDataQuestion == "n" ]] || [[ $sendHeadDataQuestion == "N" ]] || [[ $sendHeadDataQuestion == "" ]]; then
+    elif [[ $sendHeadDataQuestion == "n" ]] || [[ $sendHeadDataQuestion == "N" ]] || [[ $sendHeadDataQuestion == $newLine ]]; then
         curl -IL $sendHeadUrl
         selectOption
     else
